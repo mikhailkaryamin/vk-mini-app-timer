@@ -2,14 +2,21 @@ import React, { useState } from "react";
 import { View } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 
-import Home from "./panels/Home";
+import TimerAdd from "./panels/TimerAdd";
+import TimersList from "./panels/TimersList";
+
+const PanelId = {
+  TIMER_ADD: "timer-add",
+  TIMERS_LIST: "timers-list",
+};
 
 const App: React.FC = () => {
-  const [activePanel, setActivePanel] = useState("home");
+  const [activePanel, setActivePanel] = useState(PanelId.TIMERS_LIST);
 
   return (
     <View activePanel={activePanel}>
-      <Home id="home" />
+      <TimersList id={PanelId.TIMERS_LIST} />
+      <TimerAdd id={PanelId.TIMER_ADD} />
     </View>
   );
 };
