@@ -1,0 +1,12 @@
+const MS = {
+  YEAR: 31556952000,
+  MONTH: 2629800000,
+  DAY: 86400000,
+  HOUR: 3600000,
+  MINUTES: 60000,
+  SECOND: 1000,
+};
+
+export {
+  MS,
+};
