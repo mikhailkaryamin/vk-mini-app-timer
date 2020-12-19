@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Panel,
   PanelHeader,
@@ -12,31 +12,17 @@ import {
   Div,
 } from "@vkontakte/vkui";
 
-import { DataTimer } from "../shared/types";
+import { PanelId } from "../shared/consts";
+import { DataTimer, TimeData, ValuesPanelId } from "../shared/types";
 import { getStringDate } from "../shared/utils";
 
 type Props = {
-  id: string;
+  id: ValuesPanelId;
+  timeData: TimeData[];
+  go: (id: ValuesPanelId) => void;
 };
 
 const ANCHOR_TIME = ",";
-
-const emptyDataMock = [];
-
-const timerDataMock = [
-  {
-    key: "1",
-    value: "1234567891245,День рождения",
-  },
-  {
-    key: "2",
-    value: "7891245123456,Супер дата",
-  },
-  {
-    key: "3",
-    value: "4512378912456,Отпуск",
-  },
-];
 
 const getModelTimersList = (dataTimer: DataTimer[]) => {
   const timerList = [];
@@ -59,22 +45,8 @@ const getModelTimersList = (dataTimer: DataTimer[]) => {
   return timerList;
 };
 
-const TimerList: React.FC<Props> = ({ id }: Props) => {
-  const mockData = [
-    {
-      key: "1",
-      value: "+1608299342708,День рождение",
-    },
-    {
-      key: "2",
-      value: "-1504295342708,Отпуск",
-    },
-    {
-      key: "3",
-      value: "-1608399342708,Выборы",
-    },
-  ];
-  const isEmptyData = !mockData.length || !mockData[0].value;
+const TimerList: React.FC<Props> = ({ id, go, timeData }: Props) => {
+  const isEmptyData = !timeData.length || !timeData[0].value;
 
   return (
     <Panel id={id}>
@@ -89,7 +61,11 @@ const TimerList: React.FC<Props> = ({ id }: Props) => {
             </Cell>
           )}
           {isEmptyData ||
-            getModelTimersList(mockData).map((el) => {
+            getModelTimersList(timeData).map((el) => {
+              if (!el.dateName) {
+                return "";
+              }
+
               return (
                 <Cell
                   key="id"
@@ -98,7 +74,9 @@ const TimerList: React.FC<Props> = ({ id }: Props) => {
                   description={getStringDate(+el.time)}
                   bottomContent={
                     <div style={{ display: "flex" }}>
-                      <Button size="m" mode="outline">Редактировать</Button>
+                      <Button size="m" mode="outline">
+                        Редактировать
+                      </Button>
                       <Button
                         size="m"
                         mode="destructive"
@@ -118,7 +96,7 @@ const TimerList: React.FC<Props> = ({ id }: Props) => {
             })}
         </List>
         <Div>
-          <Button size="xl">{"Добавить событие"}</Button>
+          <Button size="xl" onClick={() => go(PanelId.TIMER_ADD)}>{"Добавить событие"}</Button>
         </Div>
       </Group>
     </Panel>
