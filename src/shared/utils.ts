@@ -63,20 +63,13 @@ const formatTime = (ms: number): FormatTime => {
 };
 
 
-const getStringDate = (date: number, time = 0) => {
-  if (!date) {
-    return {
-      year: 0,
-      month: 0,
-      day: 0,
-      hour: 0,
-      minute: 0,
-      second: 0,
-    };
+const getStringDate = (time: number): string => {
+  if (!time) {
+    return "";
   }
 
   const { year, month, day, hour, minute, second } = formatTime(
-      Date.now() - date - time
+      Date.now() - time
   );
 
   const getFormatTimeString = (
