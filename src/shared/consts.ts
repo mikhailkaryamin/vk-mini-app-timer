@@ -7,6 +7,12 @@ const MS = {
   SECOND: 1000,
 };
 
+const PanelId = {
+  TIMER_ADD: "timer-add",
+  TIMERS_LIST: "timers-list",
+} as const;
+
 export {
   MS,
+  PanelId,
 };
