@@ -12,7 +12,13 @@ const PanelId = {
   TIMERS_LIST: "timers-list",
 } as const;
 
+const EMPTY_EVENT_DATA = {
+  time: "",
+  nameDate: "",
+};
+
 export {
+  EMPTY_EVENT_DATA,
   MS,
   PanelId,
 };
