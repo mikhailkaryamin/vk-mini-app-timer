@@ -5,6 +5,11 @@ export type DataTimer = {
   value: string;
 };
 
+export type CurrentEventData = {
+  time: string;
+  nameDate: string;
+};
+
 export type FormatTime = {
   year: number;
   month: number;
@@ -13,12 +18,6 @@ export type FormatTime = {
   minute: number;
   second: number;
 };
-
-export type TimeData = {
-  key: string;
-  value: string;
-};
-
 
 type KeysPanelId = keyof typeof PanelId;
 export type ValuesPanelId = typeof PanelId[KeysPanelId];
