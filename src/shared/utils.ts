@@ -39,18 +39,12 @@ const formatTime = (ms: number): FormatTime => {
     ms = ms * -1;
   }
 
-  let msCurrentTimeZone = ms + new Date().getTimezoneOffset() * 60000;
-
-  if (msCurrentTimeZone < 0) {
-    msCurrentTimeZone = msCurrentTimeZone * -1;
-  }
-
-  const year = Math.floor(msCurrentTimeZone / MS.YEAR);
-  const month = Math.floor((msCurrentTimeZone % MS.YEAR) / MS.MONTH);
-  const day = Math.floor((msCurrentTimeZone % MS.MONTH) / MS.DAY);
-  const hour = Math.floor((msCurrentTimeZone % MS.DAY) / MS.HOUR);
-  const minute = Math.floor((msCurrentTimeZone % MS.HOUR) / MS.MINUTES);
-  const second = Math.floor((msCurrentTimeZone % MS.MINUTES) / MS.SECOND);
+  const year = Math.floor(ms / MS.YEAR);
+  const month = Math.floor((ms % MS.YEAR) / MS.MONTH);
+  const day = Math.floor((ms % MS.MONTH) / MS.DAY);
+  const hour = Math.floor((ms % MS.DAY) / MS.HOUR);
+  const minute = Math.floor((ms % MS.HOUR) / MS.MINUTE);
+  const second = Math.floor((ms % MS.MINUTE) / MS.SECOND);
 
   return {
     year,
@@ -71,6 +65,7 @@ const getStringDate = (time: number): string => {
   const { year, month, day, hour, minute, second } = formatTime(
       Date.now() - time
   );
+
 
   const getFormatTimeString = (
       timeData: number,
@@ -138,4 +133,10 @@ const getStringDate = (time: number): string => {
   );
 };
 
-export { getStringDate };
+const getDateCurrentTimeZone = (timeMs: number): number => {
+  const currentOffsetMs = +(new Date().getTimezoneOffset()) * 60000;
+
+  return timeMs + currentOffsetMs;
+};
+
+export { getStringDate, getDateCurrentTimeZone };
