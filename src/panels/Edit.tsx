@@ -14,8 +14,8 @@ import {
 } from "@vkontakte/vkui/dist";
 
 import { ValuesPanelId, CurrentEventData } from "../shared/types";
-import { PanelId, EMPTY_EVENT_DATA } from "../shared/consts";
-import { getStringDate } from "../shared/utils";
+import { PanelId, EMPTY_EVENT_DATA, MS } from "../shared/consts";
+import { getStringDate, getDateCurrentTimeZone } from "../shared/utils";
 
 type Props = {
   currentEventData: CurrentEventData;
@@ -29,56 +29,61 @@ type Props = {
 const getDefaultValue = (dateTime: CurrentEventData) => {
   const dateISO = new Date(+dateTime.time).toISOString();
   const date = dateISO.substring(0, 10);
-  const time = dateISO.substring(12, 19);
+  const time = dateISO.substring(11, 16);
 
-  return ({
+  return {
     date,
     time,
-  });
+  };
 };
 
-const TimerAdd: React.FC<Props> = ({ id, go, timeId, onFetch, currentEventData, setCurrentEventData }: Props) => {
-  const [date, setDate] = useState(0);
-  const [time, setTime] = useState(0);
-  const [nameEvent, setNameEvent] = useState("");
+const getTimeMs = (timeString: string) => {
+  if (!timeString) {
+    return 0;
+  }
+
+  const hourMs = +(timeString.substring(0, 2)) * MS.HOUR;
+  const minuteMs = +(timeString.substring(3, 5)) * MS.MINUTE;
+
+  return (hourMs + minuteMs);
+};
+
+const Edit: React.FC<Props> = ({
+  id,
+  go,
+  timeId,
+  onFetch,
+  currentEventData,
+  setCurrentEventData,
+}: Props) => {
+
   const [dateValue, setDateValue] = useState("");
   const [timeValue, setTimeValue] = useState("");
-  const [nameDateValue, setNameDateValue] = useState("");
+  const [nameEventValue, setNameEventValue] = useState("");
+
   const [isVisibilityTime, setVisibilityTime] = useState(false);
   const [newTimeData, setNewTimeData] = useState("");
 
-  if (isNaN(time)) {
-    setTime(0);
-  }
+  const onSubmitForm = (evt: React.FormEvent<HTMLFormElement>) => {
+    evt.preventDefault();
 
-  const onSubmitForm = () => {
-    if (date && nameEvent) {
-      const dataString = `${isBeforeDate ? "-" : "+"}${
-        date + time
-      },${nameEvent}`;
-      setNewTimeData(dataString);
-      setCurrentEventData(EMPTY_EVENT_DATA);
-    }
+    const form = new FormData(evt.currentTarget);
+
+    const dateForm = new Date(`${form.get("date")}`)?.getTime();
+    const nameEventForm = form.get("nameDate");
+    const timeForm = getTimeMs(timeValue);
+
+    const dataString = `${isBeforeDate ? "-" : "+"}${
+      dateForm + timeForm
+    },${nameEventForm}`;
+
+    setNewTimeData(dataString);
+    setCurrentEventData(EMPTY_EVENT_DATA);
   };
 
   const onClickBackButton = () => {
     go(PanelId.TIMERS_LIST);
     setCurrentEventData(EMPTY_EVENT_DATA);
-  };
-
-  const onChangeDate = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setDate(evt.target.valueAsNumber);
-    setDateValue(evt.target.value);
-  };
-
-  const onChangeTime = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setTime(evt.target.valueAsNumber);
-    setTimeValue(evt.target.value);
-  };
-
-  const onChangeNameDate = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setNameEvent(evt.target.value);
-    setNameDateValue(evt.target.value);
   };
 
   useEffect(() => {
@@ -87,7 +92,7 @@ const TimerAdd: React.FC<Props> = ({ id, go, timeId, onFetch, currentEventData, 
 
       setDateValue(defaultValue.date);
       setTimeValue(defaultValue.time);
-      setNameDateValue(currentEventData.nameDate);
+      setNameEventValue(currentEventData.nameDate);
 
       setCurrentEventData({
         time: "",
@@ -112,26 +117,36 @@ const TimerAdd: React.FC<Props> = ({ id, go, timeId, onFetch, currentEventData, 
     sendTimeData();
   }, [newTimeData]);
 
-  const isBeforeDate = date + time < Date.now();
-  const stringDate = getStringDate(date + time);
+
+  const dateCurrentTimeZone = getDateCurrentTimeZone(new Date(dateValue)?.getTime());
+  const time = getTimeMs(timeValue);
+
+  const isBeforeDate = dateCurrentTimeZone + time < Date.now();
+  const stringDate = getStringDate(dateCurrentTimeZone + time);
 
   return (
     <Panel id={id}>
-      <PanelHeader left={<PanelHeaderBack onClick={onClickBackButton}></PanelHeaderBack>}>
-        Таймер
+      <PanelHeader
+        left={<PanelHeaderBack onClick={onClickBackButton}></PanelHeaderBack>}
+      >
+        Редактор
       </PanelHeader>
       <Group>
-        <FormLayout>
+        <FormLayout onSubmit={onSubmitForm}>
           <Input
             type="date"
             top="Дата"
             name="date"
+            placeholder="ГГГГ-ММ-ДД"
             value={dateValue}
-            onChange={onChangeDate}
+            onChange={(evt) => setDateValue(evt.target.value)}
             required
           />
 
-          <Button onClick={() => setVisibilityTime(!isVisibilityTime)}>
+          <Button
+            type="button"
+            onClick={() => setVisibilityTime(!isVisibilityTime)}
+          >
             {isVisibilityTime ? "Убрать время" : "Добавить время"}
           </Button>
 
@@ -140,21 +155,21 @@ const TimerAdd: React.FC<Props> = ({ id, go, timeId, onFetch, currentEventData, 
               type="time"
               top="Время"
               name="time"
+              placeholder="ЧЧ:ММ"
               value={timeValue}
-              onChange={onChangeTime}
+              onChange={(evt) => setTimeValue(evt.target.value)}
             />
           )}
           <Input
             placeholder="Название события"
-            onChange={onChangeNameDate}
-            value={nameDateValue}
+            name="nameDate"
+            onChange={(evt) => {
+              setNameEventValue(evt.target.value);
+            }}
+            value={nameEventValue}
             required
           ></Input>
-          <Button
-            size="xl"
-            type="submit"
-            onClick={onSubmitForm}
-          >
+          <Button size="xl" type="submit">
             {"Сохранить событие"}
           </Button>
         </FormLayout>
@@ -168,11 +183,11 @@ const TimerAdd: React.FC<Props> = ({ id, go, timeId, onFetch, currentEventData, 
           <Header mode="secondary">До даты осталось:</Header>
         )}
         <List>
-          <Cell>{getStringDate(date + time)}</Cell>
+          <Cell>{stringDate}</Cell>
         </List>
       </Group>
     </Panel>
   );
 };
 
-export default TimerAdd;
+export default Edit;
