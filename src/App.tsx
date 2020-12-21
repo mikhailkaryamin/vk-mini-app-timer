@@ -3,13 +3,13 @@ import bridge from "@vkontakte/vk-bridge";
 import { ScreenSpinner, View } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 
-import TimerAdd from "./panels/TimerAdd";
-import TimersList from "./panels/TimersList";
+import Edit from "./panels/Edit";
+import TimerList from "./panels/TimerList";
 
 import { DataTimer, ValuesPanelId } from "./shared/types";
 import { PanelId, EMPTY_EVENT_DATA } from "./shared/consts";
 
-const KEYS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 
 const App: React.FC = () => {
   const [activePanel, setActivePanel] = useState<ValuesPanelId>(
@@ -23,14 +23,14 @@ const App: React.FC = () => {
 
   useEffect(() => {
     async function fetchDataTime() {
+
       const fetchedDataTime = await bridge.send("VKWebAppStorageGet", {
         keys: KEYS,
       });
 
       setTimeData(fetchedDataTime.keys);
-      setTimeId(fetchedDataTime.keys.findIndex((el) => el.value === ""));
+      setTimeId(fetchedDataTime.keys.findIndex((el) => el.value === "") + 1);
       setPopout(null);
-      console.log("save");
     }
 
     fetchDataTime();
@@ -42,7 +42,7 @@ const App: React.FC = () => {
 
   return (
     <View activePanel={activePanel} popout={popout}>
-      <TimersList
+      <TimerList
         id={PanelId.TIMERS_LIST}
         timeData={timeData}
         go={go}
@@ -50,7 +50,7 @@ const App: React.FC = () => {
         setCurrentEventData={setCurrentEventData}
         setTimeId={setTimeId}
       />
-      <TimerAdd
+      <Edit
         id={PanelId.TIMER_ADD}
         go={go}
         timeId={timeId}
