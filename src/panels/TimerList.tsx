@@ -15,7 +15,7 @@ import {
 
 import { PanelId } from "../shared/consts";
 import { DataTimer, ValuesPanelId, CurrentEventData } from "../shared/types";
-import { getStringDate } from "../shared/utils";
+import { getStringDate, getDateCurrentTimeZone } from "../shared/utils";
 
 type Props = {
   id: ValuesPanelId;
@@ -98,7 +98,7 @@ const TimerList: React.FC<Props> = ({
                 if (!el.nameDate) {
                   return "";
                 }
-                const eventDescription = getStringDate(+el.time);
+                const eventDescription = getStringDate(getDateCurrentTimeZone(+el.time));
 
                 return (
                   <Cell
